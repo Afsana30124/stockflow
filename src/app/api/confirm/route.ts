@@ -7,9 +7,7 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    const {
-      reservationId,
-    } = body;
+    const { reservationId } = body;
 
     const reservation =
       await prisma.reservation.findUnique({
@@ -36,8 +34,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json(
         {
-          message:
-            "Already confirmed",
+          message: "Already confirmed",
         },
         {
           status: 400,
@@ -55,8 +52,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({
-      message:
-        "Reservation confirmed",
+      message: "Reservation confirmed",
     });
 
   } catch (error) {

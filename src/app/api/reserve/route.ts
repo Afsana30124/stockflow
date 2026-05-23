@@ -68,9 +68,10 @@ export async function POST(req: Request) {
         },
       });
 
-    return NextResponse.json(
-      reservation
-    );
+   return NextResponse.json({
+  message: "Reserved successfully",
+  reservationId: reservation.id,
+});
 
   } catch (error) {
 

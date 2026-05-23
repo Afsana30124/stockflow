@@ -11,8 +11,13 @@ import {
 } from "react-icons/fa";
 
 type Product = {
+
   id: string;
+
+  reservationId: string | null;
+
   totalUnits: number;
+
   reservedUnits: number;
 
   product: {
@@ -59,7 +64,7 @@ const [loadingId, setLoadingId] =
     const quantity =
       quantities[inventoryId] || 1;
 
-    setLoadingId(inventoryId);
+setLoadingId(inventoryId);
 
     const res = await fetch(
       "/api/reserve",
@@ -82,21 +87,66 @@ const [loadingId, setLoadingId] =
 
     if (res.ok) {
 
-      toast.success(
-        "Product Reserved Successfully"
-      );
+  toast.success(
+    "Product Reserved Successfully"
+  );
 
-    } else {
+  window.location.href =
+  `/reservation/${data.reservationId}`;
+} else if (res.status === 409) {
 
-      toast.error(
-        data.message
-      );
-    }
+  toast.error(
+    "Not enough stock available"
+  );
+
+} else {
+
+  toast.error(
+    data.message
+  );
+}
 
     await fetchProducts();
 
-    setLoadingId("");
+    setLoadingId(null);
   }
+  async function removeReservation(
+  reservationId: string
+) {
+
+  const res = await fetch(
+    "/api/release",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        reservationId,
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (res.ok) {
+
+    toast.success(
+      "Reservation Removed"
+    );
+
+    fetchProducts();
+
+  } else {
+
+    toast.error(
+      data.message
+    );
+  }
+}
 
   useEffect(() => {
     fetchProducts();
@@ -292,23 +342,48 @@ const [loadingId, setLoadingId] =
                     className="border rounded-lg px-3 py-2 w-20"
                   />
 
-                  <button
-                    onClick={() =>
-                      reserveProduct(item.id)
-                    }
-                    disabled={
-                      loadingId === item.id
-                    }
-                    className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-lg transition"
-                  >
+                  <div className="flex gap-2 w-full">
 
-                    {
-                      loadingId === item.id
-                        ? "Processing..."
-                        : "Reserve Now"
-                    }
+  <button
+    onClick={() =>
+      reserveProduct(item.id)
+    }
+    disabled={
+      loadingId === item.id
+    }
+    className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-lg transition"
+  >
 
-                  </button>
+    {
+      loadingId === item.id
+        ? "Processing..."
+        : "Reserve"
+    }
+
+  </button>
+
+  <button
+    onClick={() => {
+
+  if (!item.reservationId) {
+
+    toast.error(
+      "No active reservation"
+    );
+
+    return;
+  }
+
+  removeReservation(
+    item.reservationId
+  );
+}}
+    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition"
+  >
+    Remove
+  </button>
+
+</div>
 
                 </div>
 

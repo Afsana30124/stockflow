@@ -8,8 +8,21 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const {
-      reservationId,
-    } = body;
+  reservationId,
+} = body;
+
+if (!reservationId) {
+
+  return NextResponse.json(
+    {
+      message:
+        "Reservation ID missing",
+    },
+    {
+      status: 400,
+    }
+  );
+}
 
     const reservation =
       await prisma.reservation.findUnique({
